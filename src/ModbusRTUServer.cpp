@@ -63,6 +63,20 @@ int ModbusRTUServerClass::poll()
 
   int requestLength = modbus_receive(_mb, request);
 
+  int offset = modbus_get_header_length(_mb);
+  int function = request[offset];
+  if(function == MODBUS_FC_WRITE_SINGLE_REGISTER){
+    last_written_address = (request[offset + 1] << 8) + request[offset + 2];
+    last_written_count = 1;
+  }else if(function == MODBUS_FC_WRITE_MULTIPLE_REGISTERS){
+    last_written_address = (request[offset + 1] << 8) + request[offset + 2];
+    // last_written_address = (request[offset + 3] << 8) + request[offset + 4];
+    last_written_count = request[offset + 5]/2;
+  }else{
+    last_written_address = -1;
+    last_written_count = -1;
+  }
+
   if (requestLength > 0) {
     modbus_reply(_mb, request, requestLength, &_mbMapping);
     return 1;

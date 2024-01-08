@@ -135,6 +135,8 @@ public:
    * Stop the server
    */
   void end();
+  int last_written_address;
+  int last_written_count;
 
 protected:
   ModbusServer();
